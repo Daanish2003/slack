@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button";
+import SignOutButton from "@/features/auth/components/sign-out-button";
 
 export default function Home() {
+  
   return (
-    <div className="text-rose-500 font-bold text-2xl">
-      Hello World
+    <div>
+      Logged in!
+      <SignOutButton />
     </div>
   );
 }
