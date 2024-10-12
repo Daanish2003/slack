@@ -1,4 +1,5 @@
 "use client"
+
 import UserButton from '@/features/auth/components/user-button'
 import WorkspaceSwitcher from './workspaceSwitcher'
 import SidebarButton from './sidebarButton'

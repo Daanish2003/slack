@@ -3,6 +3,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Doc } from '../../../../convex/_generated/dataModel'
 import { ChevronDown, ListFilter, Square, SquarePen } from 'lucide-react'
 import { Hint } from '@/components/hint'
+import { PreferenceModal } from './preferenceModal'
+import { useState } from 'react'
 
 interface WorkspaceHeaderprops {
     workspace: Doc<"workspaces">
@@ -11,13 +13,20 @@ interface WorkspaceHeaderprops {
 
 
 const WorkspaceHeader = ({workspace ,isAdmin}: WorkspaceHeaderprops) => {
+    const [preferencesOpen, setPreferencesOpen] = useState(false);
   return (
+    <>
+    <PreferenceModal 
+       open={preferencesOpen} 
+       setOpen={setPreferencesOpen} 
+       initialValue={workspace.name} 
+    />
     <div className='flex items-center px-4 h-[49px] gap-0.5 justify-between'>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                 variant={"transparent"}
-                className='font-semibold text-lg w-auto p-1.5 overflow-hidden'
+                className='font-semibold text-lg w-auto p-1.5 overflow-hidden focus-visible:ring-0'
                 size={"sm"}
                 >
                     <span className='truncate'>{workspace.name}</span>
@@ -47,7 +56,7 @@ const WorkspaceHeader = ({workspace ,isAdmin}: WorkspaceHeaderprops) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            className='cursor-pointer py-2'
-                           onClick={() => {}}
+                           onClick={() => setPreferencesOpen(true)}
                         >
                         Preferences
                         </DropdownMenuItem>
@@ -69,6 +78,7 @@ const WorkspaceHeader = ({workspace ,isAdmin}: WorkspaceHeaderprops) => {
             </Hint>
         </div>
     </div>
+    </>
   )
 }
 
