@@ -5,7 +5,6 @@ import { useCurrentUser } from '../api/use-current-user'
 import { Loader, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import SignOutButton from './sign-out-button'
 import { useAuthActions } from '@convex-dev/auth/react'
 import { useRouter } from 'next/navigation'
 
@@ -37,10 +36,7 @@ const UserButton = () => {
          </Avatar>
        </DropdownMenuTrigger>
        <DropdownMenuContent className='w-60' align='center' side="right">
-        <DropdownMenuItem onClick={()=> signOut().then(() => {
-           router.refresh()
-        }
-        )}>
+        <DropdownMenuItem onClick={()=> signOut()}>
             <LogOut className='size-4 mr-2'/>
             Log out
             {/* <SignOutButton /> */}
