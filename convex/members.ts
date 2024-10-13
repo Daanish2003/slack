@@ -26,14 +26,10 @@ export const get = query({
            .query("members")
            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId)).collect();
 
-           console.log(data)
-
         const members = [];
 
         for (const member of data) {
             const user = await populatedUser(ctx, member.userId)
-
-            console.log(user)
 
             if(user) {
                 members.push({

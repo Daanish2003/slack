@@ -19,7 +19,7 @@ export const create = mutation({
          .withIndex("by_workspace_id_user_id", (q) => q.eq("workspaceId", args.workspaceId).eq("userId", userId)).unique();
 
     if(!member || member.role !== "admin") {
-        throw new Error("Unauthorized")
+        throw new Error()
     }
 
     const parsedName = args.name.replace(/\s+/g, '-').toLowerCase();
