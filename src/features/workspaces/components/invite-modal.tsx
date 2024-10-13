@@ -41,7 +41,7 @@ const InviteModal = ({
         ,{
             onSuccess: () => {
                 toast.success("Invite code regenerated")
-                router.refresh("/")
+                router.refresh();
 
             },
             onError: () => {
@@ -50,7 +50,7 @@ const InviteModal = ({
         })
     }
     const handleCopy = () => {
-        const inviteLink = `${window.location.origin}/join/${joinCode}`;
+        const inviteLink = `${window.location.origin}/join/${workspaceId}`;
 
         navigator.clipboard.writeText(inviteLink).then(
             () => {
