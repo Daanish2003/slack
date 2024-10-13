@@ -1,3 +1,4 @@
+"use client"
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Doc } from '../../../../convex/_generated/dataModel'
@@ -5,6 +6,7 @@ import { ChevronDown, ListFilter, Square, SquarePen } from 'lucide-react'
 import { Hint } from '@/components/hint'
 import { PreferenceModal } from './preferenceModal'
 import { useState } from 'react'
+import InviteModal from './invite-modal'
 
 interface WorkspaceHeaderprops {
     workspace: Doc<"workspaces">
@@ -14,8 +16,15 @@ interface WorkspaceHeaderprops {
 
 const WorkspaceHeader = ({workspace ,isAdmin}: WorkspaceHeaderprops) => {
     const [preferencesOpen, setPreferencesOpen] = useState(false);
+    const [inviteOpen, setInviteOpen] = useState(false);
   return (
     <>
+    <InviteModal 
+    open={inviteOpen}
+    setOpen={setInviteOpen}
+    name={workspace.name}
+    joinCode={workspace.joinCode}
+    />
     <PreferenceModal 
        open={preferencesOpen} 
        setOpen={setPreferencesOpen} 
@@ -49,7 +58,7 @@ const WorkspaceHeader = ({workspace ,isAdmin}: WorkspaceHeaderprops) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            className='cursor-pointer py-2'
-                           onClick={() => {}}
+                           onClick={() => setInviteOpen(true)}
                         >
                         Invite People to {workspace.name}
                         </DropdownMenuItem>
