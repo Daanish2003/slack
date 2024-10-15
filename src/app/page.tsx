@@ -4,8 +4,7 @@ import { Workspace } from "@/features/workspaces/components/workspace";
 export default function Home() {
   
   return (
-    <div>
-      <UserButton />
+    <div className="h-full bg-[#5E2C5F]">
       <Workspace />
     </div>
   );

@@ -46,7 +46,7 @@ const UserItem = ({
     asChild
     >
      <Link href={`/workspace/${workspaceId}/member/${id}`}>
-     <Avatar className="size-4 rounded-md mr-1">
+     <Avatar className="size-5">
         <AvatarImage className="rounded-md" src={image}/>
         <AvatarFallback>
            {avatarFallback}

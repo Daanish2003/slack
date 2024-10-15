@@ -9,6 +9,7 @@ import { useState } from "react"
 import { TriangleAlert } from "lucide-react"
 import { useAuthActions } from "@convex-dev/auth/react"
 import { useRouter } from "next/navigation"
+import { useWorkspaceId } from "@/hooks/use-workspace-id"
 
 interface SignInCardProps  {
     setState: (state: SignInFlow) => void
