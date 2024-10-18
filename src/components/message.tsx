@@ -12,6 +12,7 @@ import { useRemoveMessages } from "@/features/messages/api/use-remove-messages";
 import { useConfrim } from "@/hooks/use-confirm";
 import { useToggleReactions } from "@/features/reactions/api/use-toggle-reactions";
 import { Reactions } from "./reactions";
+import { usePanel } from "@/hooks/use-panel";
 
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: false });
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false })
@@ -63,6 +64,7 @@ export const Message = ({
     threadImage,
     threadTimestamp
 }: MessageProps) => {
+    const {onOpenMessage, onClose, parentMessageId} = usePanel()
     const [ConfirmDialog, confirm] = useConfrim(
         "Delete Message",
         "Are you sure you want to delete this message? This cannot be undone."
@@ -104,7 +106,9 @@ export const Message = ({
             onSuccess: () => {
                 toast.success("Message deleted");
 
-                //TODO: Close the threads if opened
+                if(parentMessageId === id) {
+                    onClose();
+                }
             },
             onError: () => {
                 toast.error("Failed to delete Message")
@@ -158,7 +162,7 @@ export const Message = ({
                             isAuthor={isAuthor}
                             isPending={isPending}
                             handleEdit={() => setEditingId(id)}
-                            handleThread={() => { }}
+                            handleThread={() => onOpenMessage(id)}
                             handleDelete={handleDelete}
                             handleReaction={handleReaction}
                             hideThreadsButton={hideThreadsButton}
@@ -234,7 +238,7 @@ export const Message = ({
                         isAuthor={isAuthor}
                         isPending={isPending}
                         handleEdit={() => setEditingId(id)}
-                        handleThread={() => { }}
+                        handleThread={() => onOpenMessage(id)}
                         handleDelete={handleDelete}
                         handleReaction={handleReaction}
                         hideThreadsButton={hideThreadsButton}
