@@ -23,7 +23,7 @@ type CreateMessageValues = {
 
 const ChatInput = ({placeholder}: ChatInputProps) => {
   const [editorKey, setEditorKey] = useState(0);
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, setIsPending] = useState(false);
   const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
   const editorRef = useRef<Quill | null>(null);
