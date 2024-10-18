@@ -5,8 +5,14 @@ import { Hint } from "./hint";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Thumbnail } from "./thumnail";
 import { Toolbar } from "./toolbar";
+import { useUpdateMessages } from "@/features/messages/api/use-update-messages";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useRemoveMessages } from "@/features/messages/api/use-remove-messages";
+import { useConfrim } from "@/hooks/use-confirm";
 
-const Renderer = dynamic(() => import("@/components/renderer"))
+const Renderer = dynamic(() => import("@/components/renderer"), {ssr: false});
+const Editor = dynamic(() => import("@/components/editor"), {ssr: false})
 
 interface MessageProps {
     id: Id<"messages">,
@@ -55,11 +61,54 @@ export const Message = ({
     threadImage,
     threadTimestamp
 }:  MessageProps) => {
-    const avatarFallback = authorName.charAt(0).toUpperCase()
+    const [ConfirmDialog, confirm] = useConfrim(
+        "Delete Message",
+        "Are you sure you want to delete this message? This cannot be undone."
+    );
+
+    const {mutate: updateMessage, isPending: isUpdatingMessage} = useUpdateMessages();
+    const { mutate: removeMessage, isPending: isRemoveMessage} = useRemoveMessages()
+
+    const isPending = isUpdatingMessage;
+
+    const handleUpdate = ({body}: {body: string}) => {
+       updateMessage({ id, body}, {
+        onSuccess: () => {
+            toast.success("Message updated");
+            setEditingId(null)
+        },
+        onError: () => {
+            toast.error("Failed to update message")
+        }
+       });
+    };
+
+    const handleDelete = async () => {
+        const ok = await confirm();
+
+        if(!ok) return;
+
+        removeMessage({id}, {
+            onSuccess: () => {
+                toast.success("Message deleted");
+
+                //TODO: Close the threads if opened
+            },
+            onError: () => {
+                toast.error("Failed to delete Message")
+            }
+        })
+    }
 
     if (isCompact) {
         return (
-            <div className="flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative">
+            <>
+            <ConfirmDialog />
+            <div className={cn("flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
+                isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
+                isRemoveMessage && 
+                "bg-rose-500/50 transform transiton-all scale-y-0 origin-bottom duration-200"
+            )}>
                 <div className="flex items-start gap-2">
                     <Hint
                     label={formatFullTime(new Date(createdAt))}
@@ -68,20 +117,53 @@ export const Message = ({
                         {format(new Date(createdAt), "hh:mm")}
                     </button>
                     </Hint>
-                    <div className="flex flex-col w-full">
-                    <Renderer value={body}/>
-                    <Thumbnail url={image} />
-                    {updatedAt ? (
-                        <span className="text-xs text-muted-foreground ">(edited)</span>
-                    ): null}
-                    </div>
+                    {isEditing ? (
+                       <div className="w-full h-full">
+                        <Editor 
+                         onSubmit={handleUpdate}
+                         disabled={isPending}
+                         defaultValue={JSON.parse(body)}
+                         onCancel={() => setEditingId(null)}
+                         variant="update"
+                        />
+                       </div>
+                    ): (
+                        <div className="flex flex-col w-full">
+                        <Renderer value={body}/>
+                        <Thumbnail url={image} />
+                        {updatedAt ? (
+                            <span className="text-xs text-muted-foreground ">(edited)</span>
+                        ): null}
+                        </div>
+                    )}
                 </div>
+                {!isEditing && (
+                    <Toolbar 
+                     isAuthor={isAuthor}
+                     isPending={isPending}
+                     handleEdit={() => setEditingId(id)}
+                     handleThread = {() => {}}
+                     handleDelete = {handleDelete}
+                     handleReaction = {() => {}}
+                     hideThreadsButton={hideThreadsButton}
+                    />
+                )}
             </div>
+            </>
            );
     }
 
+    const avatarFallback = authorName.charAt(0).toUpperCase()
+
     return (
-        <div className="flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative">
+        <>
+        <ConfirmDialog />
+        <div className={cn(
+            "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
+            isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
+            isRemoveMessage && 
+            "bg-rose-500/50 transform transiton-all scale-y-0 origin-bottom duration-200"
+            )}>
                 <div className="flex items-start gap-2">
                     <button>
                         <Avatar>
@@ -91,7 +173,18 @@ export const Message = ({
                             </AvatarFallback>
                         </Avatar>
                     </button>
-                    <div className="flex flex-col w-full overflow-hidden">
+                    {isEditing ? (
+                        <div className="w-full h-full">
+                            <Editor 
+                            onSubmit={handleUpdate}
+                            disabled={isPending}
+                            defaultValue={JSON.parse(body)}
+                            onCancel={() => setEditingId(null)}
+                            variant="update"
+                            />
+                        </div>
+                    ): (
+                        <div className="flex flex-col w-full overflow-hidden">
                         <div className="text-sm">
                             <button 
                             onClick={() => {}}
@@ -114,18 +207,20 @@ export const Message = ({
                             <span className="text-xs text-muted-foreground">(edited)</span>
                         ): null}
                     </div>
+                    )}
                 </div>
                 {!isEditing && (
                     <Toolbar 
                      isAuthor={isAuthor}
-                     isPending={false}
+                     isPending={isPending}
                      handleEdit={() => setEditingId(id)}
                      handleThread = {() => {}}
-                     handleDelete = {() => {}}
+                     handleDelete = {handleDelete}
                      handleReaction = {() => {}}
                      hideThreadsButton={hideThreadsButton}
                     />
                 )}
             </div>
+            </>
     )
 }

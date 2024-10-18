@@ -3,7 +3,6 @@ import { mutation, query, QueryCtx } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { paginationOptsValidator } from "convex/server";
-import { count } from "console";
 
 const populateThreads = async(ctx: QueryCtx, messageId: Id<"messages">) => {
     const messages = await ctx.db.query("messages").withIndex("by_parent_message_id", (q) => q.eq("parentMessageId", messageId)).collect()
@@ -51,6 +50,70 @@ const populateMember = (ctx: QueryCtx, memberId: Id<"members">) => {
 const getMember = async (ctx: QueryCtx, userId: Id<"users">, workspaceId:Id<"workspaces">) => {
     return ctx.db.query("members").withIndex("by_workspace_id_user_id", (q) => q.eq("workspaceId", workspaceId).eq("userId", userId)).unique()
 }
+
+export const update = mutation({
+    args: {
+        id: v.id("messages"),
+        body: v.string(),
+    }, handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx)
+     
+        if(!userId) {
+            throw new Error("Unauthorized")
+        }
+
+        const message = await ctx.db.get(args.id)
+
+        if(!message) {
+            throw new Error("Message not found")
+        }
+
+        const member = await getMember(ctx, userId, message.workspaceId);
+
+        if (!member || member._id !== message.memberId) {
+            throw new Error("member not found")
+        }
+
+        await ctx.db.patch(args.id, {
+            body: args.body,
+            updatedAt: Date.now()
+        });
+
+        return args.id
+
+    }
+})
+
+export const remove = mutation({
+    args: {
+        id: v.id("messages"),
+    }, handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx)
+     
+        if(!userId) {
+            throw new Error("Unauthorized")
+        }
+
+        const message = await ctx.db.get(args.id)
+
+        if(!message) {
+            throw new Error("Message not found")
+        }
+
+        const member = await getMember(ctx, userId, message.workspaceId);
+
+        if (!member || member._id !== message.memberId) {
+            throw new Error("member not found")
+        }
+
+        await ctx.db.delete(args.id);
+
+        return args.id
+
+    }
+})
+
+
 
 export const get = query({
     args: {
