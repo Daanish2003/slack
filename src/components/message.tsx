@@ -13,6 +13,7 @@ import { useConfrim } from "@/hooks/use-confirm";
 import { useToggleReactions } from "@/features/reactions/api/use-toggle-reactions";
 import { Reactions } from "./reactions";
 import { usePanel } from "@/hooks/use-panel";
+import { ThreadBar } from "./thread-bar";
 
 const Renderer = dynamic(() => import("@/components/renderer"), { ssr: false });
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false })
@@ -38,6 +39,7 @@ interface MessageProps {
     hideThreadsButton?: boolean;
     threadCount?: number;
     threadImage?: string;
+    threadName?: string;
     threadTimestamp?: number;
 };
 
@@ -62,9 +64,10 @@ export const Message = ({
     hideThreadsButton,
     threadCount,
     threadImage,
+    threadName,
     threadTimestamp
 }: MessageProps) => {
-    const {onOpenMessage, onClose, parentMessageId} = usePanel()
+    const {onOpenMessage, onClose, parentMessageId, onOpenProfile} = usePanel()
     const [ConfirmDialog, confirm] = useConfrim(
         "Delete Message",
         "Are you sure you want to delete this message? This cannot be undone."
@@ -75,7 +78,7 @@ export const Message = ({
     const { mutate: toggleReaction, isPending: isTogglingReaction } = useToggleReactions();
 
 
-    const isPending = isUpdatingMessage;
+    const isPending = isUpdatingMessage || isTogglingReaction;
 
     const handleReaction = (value: string) => {
         toggleReaction({ messageId: id, value }, {
@@ -154,6 +157,13 @@ export const Message = ({
                                     data={reactions}
                                     onChange={handleReaction}
                                 />
+                                <ThreadBar
+                                count = {threadCount}
+                                image = {threadImage}
+                                name = {threadName}
+                                timestamp = {threadTimestamp}
+                                onClick={() => onOpenMessage(id)}
+                                />
                             </div>
                         )}
                     </div>
@@ -186,7 +196,9 @@ export const Message = ({
             )}>
                 <div className="flex items-start gap-2">
                     <button>
-                        <Avatar>
+                        <Avatar
+                        onClick={() => onOpenProfile(memberId)}
+                        >
                             <AvatarImage src={authorImage} />
                             <AvatarFallback>
                                 {avatarFallback}
@@ -207,7 +219,7 @@ export const Message = ({
                         <div className="flex flex-col w-full overflow-hidden">
                             <div className="text-sm">
                                 <button
-                                    onClick={() => { }}
+                                    onClick={() => onOpenProfile(memberId)}
                                     className="font-bold text-primary hover:underline"
                                 >
                                     {authorName}
@@ -230,6 +242,13 @@ export const Message = ({
                                 data={reactions}
                                 onChange={handleReaction}
                             />
+                            <ThreadBar
+                                count = {threadCount}
+                                image = {threadImage}
+                                name  = {threadName}
+                                timestamp = {threadTimestamp}
+                                onClick={() => onOpenMessage(id)}
+                                />
                         </div>
                     )}
                 </div>

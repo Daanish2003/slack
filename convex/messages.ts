@@ -17,6 +17,7 @@ const populateThreads = async (ctx: QueryCtx, messageId: Id<"messages">) => {
       count: 0,
       image: undefined,
       timestamp: 0,
+      name: "",
     };
   }
 
@@ -28,6 +29,7 @@ const populateThreads = async (ctx: QueryCtx, messageId: Id<"messages">) => {
       count: 0,
       image: undefined,
       timestamp: 0,
+      name: ""
     };
   }
 
@@ -37,6 +39,7 @@ const populateThreads = async (ctx: QueryCtx, messageId: Id<"messages">) => {
     count: messages.length,
     image: lastMessageUser?.image,
     timestamp: lastMessage._creationTime,
+    name: lastMessageUser?.name
   };
 };
 
@@ -88,7 +91,7 @@ export const getById = query({
     const currentMember = await getMember(ctx, userId, message.workspaceId);
 
     if (!currentMember) {
-        return null
+      return null;
     }
 
     const member = await populateMember(ctx, message.memberId);
@@ -306,6 +309,7 @@ export const get = query({
               reactions: reactionsWithMemberIdProperty,
               threadImage: thread.image,
               threadCount: thread.count,
+              threadName: thread.name,
               threadTimestamp: thread.timestamp,
             };
           })
@@ -358,6 +362,7 @@ export const create = mutation({
       image: args.image,
       channelId: args.channelId,
       workspaceId: args.workspaceId,
+      conversationId: _conversationId,
       parentMessageId: args.parentMessageId,
     });
 

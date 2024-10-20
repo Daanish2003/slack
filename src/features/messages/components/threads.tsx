@@ -60,7 +60,6 @@ export const Threads = ({ messageId, onClose }: ThreadsProps) => {
     const isLoadingMore = status === "LoadingMore"
 
     const handleSubmit = async ({body, image}: {body: string; image: File | null}) => {
-        console.log({body, image});
         try {
           setIsPending(true);
           editorRef?.current?.enable(false);
@@ -218,6 +217,7 @@ export const Threads = ({ messageId, onClose }: ThreadsProps) => {
                                 hideThreadsButton={true}
                                 threadCount={message.threadCount}
                                 threadImage={message.threadImage}
+                                threadName={message.threadName}
                                 threadTimestamp={message.threadTimestamp}
                             />
                         )

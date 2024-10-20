@@ -63,7 +63,6 @@ const Header = ({title}: HeaderProps) => {
   }
 
 const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  console.log("handleSubmit")
    e.preventDefault();
 
    updateChannel({ id: channelId, name: value }, {
